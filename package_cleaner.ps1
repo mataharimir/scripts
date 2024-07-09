@@ -1,18 +1,19 @@
 # Settings
 $directoryPath = "D:\scriptstest\test"  # Path to remove folders inside.
 $daysOld = 30  # Number of days after which files should be deleted.
-$maintLogFilePath = "D:\scriptstest\FolderCleaner.Main.txt"  # Path to info logs.
-$errorLogFilePath = "D:\scriptstest\FolderCleaner.Error.txt"  # Path to error logs.
+$timestamp = (Get-Date).ToString("yyyyMMddHHmmss")  # Generate timestamp for log files.
+$maintLogFilePath = "D:\scriptstest\FolderCleaner.Main.$timestamp.txt"  # Path to info logs.
+$errorLogFilePath = "D:\scriptstest\FolderCleaner.Error.$timestamp.txt"  # Path to error logs.
 $encounteredError = $false
 
-$cutoffDate = (Get-Date).AddDays(-$daysOld) # Calculate date to remove folders older than.
-$foldersToDelete = Get-ChildItem -Path $directoryPath -Directory | Where-Object { $_.LastWriteTime -lt $cutoffDate } # Get folders older than cutoffDate.
+$cutoffDate = (Get-Date).AddDays(-$daysOld)  # Calculate date to remove folders older than.
+$foldersToDelete = Get-ChildItem -Path $directoryPath -Directory | Where-Object { $_.LastWriteTime -lt $cutoffDate }  # Get folders older than cutoffDate.
 
 foreach ($folder in $foldersToDelete)
 {
     try
     {
-        Remove-Item -Path $folder.FullName -Force -Recurse -ErrorAction Stop #ErrorAction needed to make sure it will catch error
+        Remove-Item -Path $folder.FullName -Force -Recurse -ErrorAction Stop  # ErrorAction needed to make sure it will catch error
         $logMessage = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') [INF] Removed folder: $($folder.FullName)"
         Write-Output $logMessage
         Add-Content -Path $maintLogFilePath -Value $logMessage

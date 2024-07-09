@@ -1,0 +1,28 @@
+---
+- name: Create a scheduled task to run PowerShell script
+  hosts: windows
+  tasks:
+    - name: Copy PowerShell script to remote host
+      win_copy:
+        src: CleanOldFilesAndFolders.ps1
+        dest: C:\scripts\CleanOldFilesAndFolders.ps1
+
+    - name: Create a scheduled task to run the script daily at midnight
+      win_scheduled_task:
+        name: "Clean Old Files and Folders"
+        description: "Clean old files and folders daily at midnight"
+        actions:
+          - path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+            arguments: '-File "C:\scripts\CleanOldFilesAndFolders.ps1"'
+        triggers:
+          - type: daily
+            start_boundary: '00:00:00'
+            repetition:
+              interval: 'P1D'
+        username: SYSTEM
+        run_level: highest
+
+    - name: Ensure the scheduled task is enabled
+      win_scheduled_task:
+        name: "Clean Old Files and Folders"
+        enabled: yes
